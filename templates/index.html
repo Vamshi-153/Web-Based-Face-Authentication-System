@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facial Recognition App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1 class="app-title">Facial Authentication App</h1>
+        <ul class="nav-list">
+            <li><button class="nav-button" disabled>About Us</button></li>
+            <li><button class="nav-button" disabled>Contact</button></li>
+        </ul>
+    </header>
+
+    <main>
+
+        <div class="button-container">
+            <button class="main-button" onclick="location.href='{{ url_for('register') }}'">Register</button>
+            <button class="main-button" onclick="location.href='{{ url_for('login') }}'">Login</button>
+        </div>
+    </main>
+</body>
+</html>

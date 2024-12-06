@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login with Facial Recognition</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1 class="app-title">Facial Authentication App</h1>
+        <ul class="nav-list">
+            <li><button class="nav-button" onclick="goHome()">Home</button></li>
+            <li><button class="nav-button" disabled>About Us</button></li>
+            <li><button class="nav-button" disabled>Contact</button></li>
+        </ul>
+    </header>
+    <h1>Login to Your Account</h1>
+    <main>
+        <div class="form-container">
+            <form id="login-form">
+                <label for="username">Username:</label>
+                <input type="text" id="username" placeholder="Enter your username" required>
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+
+                <button type="button" onclick="loginWithFace()">Face Unlock</button>
+                <button type="button" onclick="loginWithCredentials()">Login with Username and Password</button>
+            </form>
+        </div>
+        <video id="webcam" autoplay></video>
+        <canvas id="snapshot" style="display: none;"></canvas>
+        <p id="result"></p>
+    </main>
+
+    <script>
+        let video = document.getElementById('webcam');
+        let canvas = document.getElementById('snapshot');
+        let result = document.getElementById('result');
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(error => {
+                console.error("Error accessing webcam:", error);
+                alert("Unable to access webcam.");
+            });
+
+        function loginWithFace() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            let imageData = canvas.toDataURL('image/png');
+
+            console.log("Captured Image Data: ", imageData);
+
+            fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: imageData })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                if (data.redirect) {
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 2000);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred during login.");
+            });
+        }
+
+        function loginWithCredentials() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                alert("Please enter both username and password.");
+                return;
+            }
+
+            fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: username, password: password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                if (data.redirect) {
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 2000);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred during login.");
+            });
+        }
+
+        function goHome() {
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>
